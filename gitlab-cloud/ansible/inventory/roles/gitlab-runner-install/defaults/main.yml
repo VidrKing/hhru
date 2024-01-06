@@ -1,0 +1,47 @@
+---
+# vars file for gitlab-runner-install
+
+port_vm:
+  - 80
+  - 443
+  - 2222
+port_vm_rule: allow
+
+gitlab_runner_container_image: gitlab/gitlab-runner
+gitlab_runner_container_recreate: "no"
+gitlab_runner_container_restart_policy: unless-stopped
+
+shell_runner_container_name: shell-runner
+shell_runner_container_port:
+  - "8081:80"
+  - "4431:443"
+  - "2221:22"
+shell_runner_files: ./data_docker/shell-runner
+shell_runner_container_volumes_sock: "{{ shell_runner_files }}/var/run/docker.sock:/var/run/docker.sock"
+shell_runner_container_volumes:
+  - "{{ shell_runner_files }}/etc/gitlab:/etc/gitlab-runner"
+  - "{{ shell_runner_container_volumes_sock }}"
+shell_runner_executor: shell
+shell_runner_name: "{{ shell_runner_container_name }}{{ inventory_hostname }}"
+shell_runner_limit: 1
+shell_runner_request_concurrency: 2
+shell_runner_tags: testing_ci_shell
+shell_runner_run_untagged: "false"
+
+docker_runner_container_name: docker-runner
+docker_runner_container_port:
+  - "8082:80"
+  - "4432:443"
+  - "2223:22"
+docker_runner_files: ./data_docker/docker-runner
+docker_runner_container_volumes_sock: "{{ docker_runner_files }}/var/run/docker.sock:/var/run/docker.sock"
+docker_runner_container_volumes:
+  - "{{ docker_runner_files }}/etc/gitlab:/etc/gitlab-runner"
+  - "{{ docker_runner_container_volumes_sock }}"
+docker_runner_executor: docker
+docker_runner_image: docker
+docker_runner_name: "{{ docker_runner_container_name }}{{ inventory_hostname }}"
+docker_runner_limit: 1
+docker_runner_request_concurrency: 2
+docker_runner_tags: testing_ci_docker
+docker_runner_run_untagged: "true"

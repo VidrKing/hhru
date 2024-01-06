@@ -1,0 +1,6 @@
+- hosts: gl
+  become: true
+  roles:
+    - docker-install
+    - gitlab-via-docker
+    - gitlab-backup

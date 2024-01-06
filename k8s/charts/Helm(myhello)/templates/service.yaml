@@ -1,0 +1,17 @@
+---
+# Создаём сервис с именем demo в namespace demo-myhello под проект myhello
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.service.name }}
+  namespace: {{ .Values.namespace.name }}
+  labels:
+    app: {{ .Values.deployment.name }}
+spec:
+  ports:
+  - port: {{ .Values.deployment.template.containers.ports}}
+    protocol: TCP
+    targetPort: {{ .Values.deployment.template.containers.ports}}
+  selector:
+    app: {{ .Values.deployment.name }}
+  type: {{ .Values.service.type }}

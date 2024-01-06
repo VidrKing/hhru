@@ -1,0 +1,93 @@
+---
+# Создаём деплоймент с именем demo и настройками репликации, контейнера и проверок доступности в namespace под проект myhello
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deployment.name }}
+  namespace: {{ .Values.namespace.name }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.deployment.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.deployment.name }}
+    spec:
+      affinity:   # Настройка предпочтений размещения
+                  # Для уменьшения шансов размещения нескольких экземпляров
+                  # Приложения на одном узле
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: {{ .Values.deployment.template.affinity.podAntiAffinity.pDSIDuE.weight}}
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values: ["{{ .Values.deployment.name }}"]
+                topologyKey: kubernetes.io/hostname
+      containers:
+        - name: {{ .Values.deployment.template.containers.name}}
+          image: {{ .Values.deployment.template.containers.image}}
+          ports:
+          - containerPort: {{ .Values.deployment.template.containers.ports}}
+          resources:
+            requests:
+              memory: "{{ .Values.deployment.template.containers.resources.requests.memory}}"
+              cpu: "{{ .Values.deployment.template.containers.resources.requests.cpu}}"
+            limits:
+              memory: "{{ .Values.deployment.template.containers.resources.limits.memory}}"
+              cpu: "{{ .Values.deployment.template.containers.resources.limits.cpu}}"
+          livenessProbe:    # Совершаем ежеминутный HTTP-запрос, чтобы проверить, работает ли контейнер. Если не отвечает - контейнер перезапускается
+            httpGet:
+              path: /
+              port: {{ .Values.deployment.template.containers.ports}}
+            initialDelaySeconds: {{ .Values.deployment.template.containers.livenessProbe.initialDelaySeconds}}
+            periodSeconds: {{ .Values.deployment.template.containers.livenessProbe.periodSeconds}}
+          readinessProbe:   # Проверяем, готов ли контейнер начать принимать трафик. Пока контейнер не пройдет проверку доступности, на него не направляется трафик
+            httpGet:
+              path: /
+              port: {{ .Values.deployment.template.containers.ports}}
+            initialDelaySeconds: {{ .Values.deployment.template.containers.readinessProbe.initialDelaySeconds}}
+            periodSeconds: {{ .Values.deployment.template.containers.readinessProbe.periodSeconds}}
+          env:
+            - name: GREETING
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.configmap.name }}
+                  key: {{ .Values.configmap.key }}
+
+
+
+
+---
+# Просто валялось на диске, я наткнулся и решил вставить в проект.
+# Ну а почему бы и нет. Если кто-то читает, сделай, пожалуйста вид, 
+# Что поверил, что я типо умный :)
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Values.job.name }}
+  namespace: {{ .Values.namespace.name }}
+spec:
+  completions: {{ .Values.job.completions }}
+  parallelism: {{ .Values.job.parallelism }}
+  template:
+    metadata:
+      name: {{ .Values.job.template.name }}
+    spec:
+      restartPolicy: {{ .Values.job.template.restartPolicy }}
+      containers:   #Да-да, такой контейнер фиг сам закончит работу, и да, я просто скопировал его из дейплоймента
+        - name: {{ .Values.job.template.containers.name }}
+          image: {{ .Values.job.template.containers.image }}
+          ports:
+          - containerPort: {{ .Values.job.template.containers.ports }}
+          resources:
+            requests:
+              memory: "{{ .Values.job.template.containers.resources.requests.memory }}"
+              cpu: "{{ .Values.job.template.containers.resources.requests.cpu }}"
+            limits:
+              memory: "{{ .Values.job.template.containers.resources.limits.memory }}"
+              cpu: "{{ .Values.job.template.containers.resources.limits.cpu }}"

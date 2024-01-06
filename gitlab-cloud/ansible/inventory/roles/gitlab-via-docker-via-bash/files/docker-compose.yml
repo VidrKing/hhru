@@ -1,0 +1,20 @@
+version: '3.5'
+services:
+  gitlab:
+    image: gitlab/gitlab-ce:latest
+    hostname: 10.106.65.24
+    restart: unless-stopped
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        gitlab_rails['gitlab_shell_ssh_port'] = 2222
+        external_url 'http://vidrking.ru:80'
+      GITLAB_ROOT_PASSWORD: 'Hello12345678'
+      GITLAB_ROOT_EMAIL: 'barazdan@mail.ru'
+    ports:
+      - "443:443"
+      - "80:80"
+      - "2222:22"
+    volumes:
+      - ./data/docker/gitlab/etc/gitlab:/etc/gitlab
+      - ./data/docker/gitlab/var/opt/gitlab:/var/opt/gitlab
+      - ./data/docker/gitlab/var/log/gitlab:/var/log/gitlab

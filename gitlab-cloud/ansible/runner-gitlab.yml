@@ -1,0 +1,5 @@
+- hosts: glrun
+  become: true
+  roles:
+    - docker-install
+    - gitlab-runner-install

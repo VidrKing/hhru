@@ -1,0 +1,11 @@
+---
+# Создаём ResourceQuota с именем demo-resourcequota в namespace demo-myhello под проект myhello
+# И задаём ограничения лишь по количеству подов
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: {{ .Values.resourcequota.name }}
+  namespace: {{ .Values.namespace.name }}
+spec:
+  hard:
+    pods: "{{ .Values.resourcequota.hard.pods }}"

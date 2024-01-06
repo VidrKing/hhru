@@ -1,0 +1,17 @@
+---
+# Создаём LimitRange demo-limitrange в namespace demo-myhello
+# Для задания значений по умолчанию для ресурсов CPU и памяти в контейнерах 
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: {{ .Values.limitrange.name }}
+  namespace: {{ .Values.namespace.name }}
+spec:
+  limits:
+  - default:
+      cpu: "{{ .Values.limitrange.limits.default.cpu }}"
+      memory: "{{ .Values.limitrange.limits.default.memory }}"
+    defaultRequest:
+      cpu: "{{ .Values.limitrange.limits.defaultRequest.cpu }}"
+      memory: "{{ .Values.limitrange.limits.defaultRequest.memory }}"
+    type: {{ .Values.limitrange.limits.type }}

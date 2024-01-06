@@ -1,0 +1,71 @@
+namespace:
+  name: demo-myhello
+
+deployment:
+  name: demo
+  replicas: 5
+  template:
+    affinity:
+      podAntiAffinity:
+        pDSIDuE:
+          weight: 15
+    containers:
+      name: demo-pod
+      image: cloudnatived/demo:hello-config-env
+      ports: 8888
+      resources:
+        requests: 
+          memory: 10Mi
+          cpu: 100m
+        limits: 
+          memory: 20Mi
+          cpu: 250m
+      livenessProbe:
+        initialDelaySeconds: 3
+        periodSeconds: 3
+      readinessProbe:
+        initialDelaySeconds: 3
+        periodSeconds: 3
+
+job:
+  name: test-job-without-idea
+  completions: 1
+  parallelism: 1
+  template:
+    name: test-job-template
+    restartPolicy: OnFailure
+    containers:
+      name: test-job-pod
+      image: cloudnatived/demo:hello
+      ports: 8887
+      resources:
+        requests: 
+          memory: 10Mi
+          cpu: 100m
+        limits: 
+          memory: 20Mi
+          cpu: 250m
+
+configmap:
+  name: demo-config
+  key: greeting
+
+service:
+  name: demo
+  type: ClusterIP
+
+limitrange:
+  name: demo-limitrange
+  limits:
+    default:
+      cpu: 500m
+      memory: 256Mi
+    defaultRequest:
+      cpu: 200m
+      memory: 128Mi
+    type: Container
+
+resourcequota:
+  name: demo-resourcequota
+  hard:
+    pods: 20

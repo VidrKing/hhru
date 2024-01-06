@@ -1,0 +1,50 @@
+---
+# Устанавливаем зависимости для докера и сам докер
+- name: Обновление кэша пакетов
+  apt:
+    update_cache: yes
+    
+- name: install dependencies
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  loop: "{{ dependencies_docker }}"
+
+- name: add GPG key
+  apt_key:
+    url: "{{ gpg_key }}"
+    state: present
+
+- name: add docker repository to apt
+  apt_repository:
+    repo: "{{ docker_repo }}"
+    state: present
+
+- name: install docker
+  apt:
+    name: "{{item}}"
+    state: latest
+    update_cache: yes
+  loop: "{{ docker_apt }}"
+
+# Проверяем корректность установленных зависимостей и самого докера
+
+- name: check docker is active
+  service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Ensure group "docker" exists
+  group:
+    name: docker
+    state: present
+
+# Добавляем пользователя в группу Docker
+
+- name: adding user to docker group
+  user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes

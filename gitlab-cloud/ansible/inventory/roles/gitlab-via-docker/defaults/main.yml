@@ -1,0 +1,25 @@
+---
+# vars file for gitlab-via-docker
+
+port_vm:
+  - 80
+  - 443
+  - 2222
+port_vm_rule: allow
+gitlab_container_name: gitlab
+gitlab_container_image: gitlab/gitlab-ce:latest
+gitlab_container_recreate: "no"
+gitlab_container_restart_policy: unless-stopped
+gitlab_container_rails_port: 2222
+gitlab_container_external_url: 'http://vidrking.ru:80'
+gitlab_container_root_pass: 'Hello12345678'
+gitlab_container_root_email: 'barazdan@mail.ru'
+gitlab_container_port:
+  - "80:80"
+  - "443:443"
+  - "2222:22"
+gitlab_files: ./data_docker/gitlab
+gitlab_container_volumes:
+  - "{{ gitlab_files }}/etc/gitlab:/etc/gitlab"
+  - "{{ gitlab_files }}/var/opt/gitlab:/var/opt/gitlab"
+  - "{{ gitlab_files }}/var/log/gitlab:/var/log/gitlab"

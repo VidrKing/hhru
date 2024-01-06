@@ -1,0 +1,16 @@
+---
+# tasks file for gitlab-via-docker-via-bash
+
+- name: add the docker-compose.yml to the working directory
+  copy:
+    src: docker-compose.yml
+    dest: docker-compose.yml
+    mode: "0777"
+- name: add the gitlab-install.sh to the working directory
+  copy:
+    src: gitlab-install.sh
+    dest: gitlab-install.sh
+    mode: "0777"
+
+- name: run .sh
+  shell: "sudo chmod +x ./gitlab-install.sh"

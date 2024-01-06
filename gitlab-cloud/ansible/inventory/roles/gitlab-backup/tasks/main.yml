@@ -1,0 +1,49 @@
+---
+# tasks file for gitlab-backup
+- name: Create backup directory
+  file:
+    path: "{{ backup_dir }}"
+    state: directory
+- name: add Bash script for backups
+  template:
+    src: "{{ backup_script_temp_name }}"
+    dest: "{{ backup_dir }}/{{ backup_script_name }}"
+    mode: "{{ backup_script_mode }}"
+
+- name: set up cron
+  cron:
+    name: "{{ backup_cron_name }}"
+    job: "{{ backup_cron_job }}"
+    minute: "{{ backup_cron_minute }}"
+    hour: "{{ backup_cron_hour }}"
+    user: "{{ user_name }}"
+
+- name: install YC CLI (настраивать профиль не надо, если в Terraform настроили сервисный аккаунт для ВМ)
+  shell: "{{ yc_cli_install }}"
+
+#- name: install awscli
+#  apt:
+#    name: awscli
+#    state: latest
+#    update_cache: yes
+#  register: awscli_install
+#
+#- name: Create awscli-config directory
+#  file:
+#    path: "{{ awscli_config_path }}"
+#    state: directory
+#  when: awscli_install
+#
+#- name: add awscli config file
+#  copy:
+#    src: awscli-config
+#    dest: "{{ awscli_config_path }}/config"
+#    mode: "{{ awscli_config_mode }}"
+#  when: awscli_install
+#
+#- name: make and add awscli config file from templates
+#  template:
+#    src: "{{ awscli_config_credentials_temp }}"
+#    dest: "{{ awscli_config_path }}/credentials"
+#    mode: "{{ awscli_config_mode }}"
+#  when: awscli_install

@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Задаём путь, что и куда бэкапить
+
+SOURCE_DIR="/home/ubuntu/data_docker/gitlab"
+BACKUP_DIR="/home/ubuntu/backup/gitlab"
+
+# Создаем директорию для сохранения архива, если она не существует
+
+mkdir -p "$BACKUP_DIR"
+
+# Если в директории BACKUP_DIR больше FILE_COUNT_MAX файлов, удаляем самый старый файл
+
+FILE_COUNT_MAX=2
+FILE_COUNT=$(ls -A "$BACKUP_DIR" | wc -l)
+if [[ $FILE_COUNT -gt FILE_COUNT_MAX ]]; then
+  OLDEST_FILE=$(ls -rt "$BACKUP_DIR" | head -1)
+  rm "$BACKUP_DIR/$OLDEST_FILE"
+  echo "Бэкапов больше, чем разрешено ($FILE_COUNT_MAX). Удален самый старый файл: $OLDEST_FILE"
+fi
+
+# Создаем имя архива с текущей датой и временем
+
+DATA_TYPE="gitlab"
+timestamp=$(date +"%Y_%m_%d_%H")
+ARCHIVE_NAME="$DATA_TYPE-$timestamp.tar.gz"
+
+# Архивируем необходимые данные
+
+tar -czf "$BACKUP_DIR/$ARCHIVE_NAME" -C "$(dirname "$SOURCE_DIR")" "$(basename "$SOURCE_DIR")"
+echo "Директория /$SOURCE_DIR/ успешно заархивирована в /$BACKUP_DIR/$ARCHIVE_NAME/."
+
+# Копируем свежий архив в наш бакет
+
+aws --endpoint-url=https://storage.yandexcloud.net/ \
+  s3 cp /$BACKUP_DIR/$ARCHIVE_NAME/ s3://${bucket_name}

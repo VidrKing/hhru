@@ -1,0 +1,35 @@
+//Создаём вм типа prom
+resource "yandex_compute_instance" "prom" {
+  count       = var.vm.prom.count
+  name        = "${var.vm.prom.name}${format("%02s", count.index + 1)}"
+  hostname    = "${var.vm.prom.name}${format("%02s", count.index + 1)}"
+  platform_id = var.vm.prom.platform_id
+  zone        = "${var.subnet.prefix_name}${var.subnet.zone[count.index]}"
+  resources {
+    cores         = var.vm.prom.cores
+    memory        = var.vm.prom.memory
+    core_fraction = var.vm.prom.core_fraction
+  }
+  boot_disk {
+    initialize_params {
+      image_id = var.vm.prom.image_id
+      type     = var.vm.prom.type_disk
+      size     = var.vm.prom.size_disk
+    }
+  }
+  network_interface {
+    subnet_id = yandex_vpc_subnet.default[count.index].id
+    nat       = true
+    //nat_ip_address = yandex_vpc_address.default[count.index].external_ipv4_address.0.address
+  }
+  metadata = {
+    //user-data          = local_file.user_data.content
+    ssh-keys           = "${var.meta_user.name_user}:${tls_private_key.default.public_key_openssh}"
+    serial-port-enable = 1
+  }
+  allow_stopping_for_update = true
+  scheduling_policy {
+    preemptible = true
+  }
+  //service_account_id = yandex_iam_service_account.default.id
+}

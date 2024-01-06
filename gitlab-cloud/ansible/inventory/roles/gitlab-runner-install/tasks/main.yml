@@ -1,0 +1,67 @@
+---
+# tasks file for gitlab-runner-install
+- name: Check required var registration_token is set (Передавать при вызове playbook, если один runner; записать в переменные список выаыв)
+  fail:
+    msg: "registration_token var is not set"
+  when: registration_token | length == 0
+
+- name: Открытие портов в файерволе
+  ufw:
+    rule: "{{ port_vm_rule }}"
+    port: "{{ item }}"
+  loop: "{{ port_vm }}"
+
+- name: run shell-runner
+  docker_container:
+    name: "{{ shell_runner_container_name }}"
+    image: "{{ gitlab_runner_container_image }}"
+    recreate: "{{ gitlab_runner_container_recreate }}"
+    restart_policy: "{{ gitlab_runner_container_restart_policy }}"
+    published_ports: "{{ shell_runner_container_port }}"
+    volumes: "{{ shell_runner_container_volumes }}"
+
+- name: run docker-runner
+  docker_container:
+    name: "{{ docker_runner_container_name }}"
+    image: "{{ gitlab_runner_container_image }}"
+    recreate: "{{ gitlab_runner_container_recreate }}"
+    restart_policy: "{{ gitlab_runner_container_restart_policy }}"
+    published_ports: "{{ docker_runner_container_port }}"
+    volumes: "{{ docker_runner_container_volumes }}"
+
+- name: register the shell runner
+  shell: >
+    docker exec --tty
+    "{{shell_runner_container_name}}"
+    gitlab-runner register
+    --non-interactive
+    --url={{ gitlab_container_external_url }}
+    --registration-token={{ registration_token }}
+    --executor="{{ shell_runner_executor }}"
+    --name={{ shell_runner_name }}
+    --limit={{ shell_runner_limit }}
+    --request-concurrency={{ shell_runner_request_concurrency }}
+    --tag-list={{ shell_runner_tags }}
+    --run-untagged={{ shell_runner_run_untagged }}
+    --docker-privileged
+    --docker-disable-cache=false
+    --docker-volumes={shell_runner_container_volumes_sock}
+
+- name: register the docker runner
+  shell: >
+    docker exec --tty
+    "{{docker_runner_container_name}}"
+    gitlab-runner register
+    --non-interactive
+    --url={{ gitlab_container_external_url }}
+    --registration-token={{ registration_token }}
+    --executor="{{ docker_runner_executor }}"
+    --docker-image={{ docker_runner_image }}
+    --name={{ docker_runner_name }}
+    --limit={{ docker_runner_limit }}
+    --request-concurrency={{ docker_runner_request_concurrency }}
+    --tag-list={{ docker_runner_tags }}
+    --run-untagged={{ docker_runner_run_untagged }}
+    --docker-privileged
+    --docker-disable-cache=false
+    --docker-volumes={docker_runner_container_volumes_sock}

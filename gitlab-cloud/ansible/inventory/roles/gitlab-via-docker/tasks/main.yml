@@ -1,0 +1,22 @@
+---
+# tasks file for gitlab-via-docker
+- name: Открытие портов в файерволе
+  ufw:
+    rule: "{{ port_vm_rule }}"
+    port: "{{ item }}"
+  loop: "{{ port_vm }}"
+
+- name: Запуск контейнера GitLab
+  docker_container:
+    name: "{{ gitlab_container_name }}"
+    image: "{{ gitlab_container_image }}"
+    recreate: "{{ gitlab_container_recreate }}"
+    restart_policy: "{{ gitlab_container_restart_policy }}"
+    env:
+      GITLAB_OMNIBUS_CONFIG: |
+        gitlab_rails['gitlab_shell_ssh_port'] = {{ gitlab_container_rails_port }}
+        external_url '{{ gitlab_container_external_url }}'
+      GITLAB_ROOT_PASSWORD: "{{ gitlab_container_root_pass }}"
+      GITLAB_ROOT_EMAIL: "{{ gitlab_container_root_email }}"
+    ports: "{{ gitlab_container_port }}"
+    volumes: "{{ gitlab_container_volumes }}"

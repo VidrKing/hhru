@@ -1,0 +1,11 @@
+stages:
+  - init
+  - check
+  - plan
+  - release
+  - destroy
+
+include:
+  - project: 'vidrking/cicd'
+    file: 'pipeline.yml'
+    ref: 'dev'

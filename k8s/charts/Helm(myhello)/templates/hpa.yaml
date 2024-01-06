@@ -1,0 +1,19 @@
+#---
+#apiVersion: autoscaling/v2beta1
+#kind: HorizontalPodAutoscaler
+#metadata:
+#  name: demo-hpa
+#  namespace: demo-myhello
+#spec:
+#  scaleTargetRef:
+#    apiVersion: apps/v1
+#    kind: Deployment
+#    name: demo
+#  minReplicas: 2
+#  maxReplicas: 10
+#  metrics:
+#  - type: Resource
+#    resource:
+#      name: cpu
+#      targetAverageUtilization: 60
+# Ругается на CRDs, так что пока не работает. Надо проверить, или я затупил, или что-то поменялось

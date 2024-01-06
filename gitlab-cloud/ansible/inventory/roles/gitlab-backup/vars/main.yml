@@ -1,0 +1,13 @@
+backup_dir: /backup
+backup_script_name: backup-gitlab.sh
+backup_script_temp_name: backup-gitlab.j2
+backup_script_mode: "0777"
+backup_cron_name: backup gitlab
+backup_cron_job: "sudo /home/ubuntu/backup/backup-gitlab.sh > /dev/null"
+backup_cron_minute: "0"
+backup_cron_hour: "*/8"
+yc_cli_install: "curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash"
+awscli_config_path: "./.aws"
+awscli_config_name: awscli-config
+awscli_config_credentials_temp: awscli-config-credentials.j2
+awscli_config_mode: "0666"

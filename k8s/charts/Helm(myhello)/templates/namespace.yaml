@@ -1,0 +1,6 @@
+---
+# Создаём namespace под проект myhello
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.namespace.name }}
